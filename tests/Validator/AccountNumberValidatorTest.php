@@ -16,7 +16,7 @@ use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
- * @extends ConstraintValidatorTestCase<AccountNumberValid>
+ * @extends ConstraintValidatorTestCase<AccountNumberValidator>
  */
 class AccountNumberValidatorTest extends ConstraintValidatorTestCase
 {

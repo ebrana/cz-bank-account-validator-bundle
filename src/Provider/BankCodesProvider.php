@@ -16,9 +16,9 @@ final readonly class BankCodesProvider
     /**
      * update bank codes from https://www.cnb.cz/cs/platebni-styk/ucty-kody-bank/
      *
-     * @return iterable<string, string>
+     * @return array<int|string, string>
      */
-    public function provideBankCodes(): iterable
+    public function provideBankCodes(): array
     {
         return [
             '0100' => 'Komerční banka, a.s.',

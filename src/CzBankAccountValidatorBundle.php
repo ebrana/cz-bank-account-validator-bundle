@@ -12,6 +12,9 @@ final class CzBankAccountValidatorBundle extends AbstractBundle
 {
     protected string $extensionAlias = 'ebrana_cz_bank_account_validator';
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->import('../config/services.php');
