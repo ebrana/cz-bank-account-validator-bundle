@@ -38,13 +38,13 @@ jobs:
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       run: vendor/bin/phpunit --testsuite unit --log-junit junit.xml --coverage-clover clover.xml
-    # https://github.com/EnricoMi/publish-unit-test-result-action
-    - name: Publish test results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: (!cancelled())
-      with:
-        files: "junit.xml"
-        check_name: "Unit test results"
+#    # https://github.com/EnricoMi/publish-unit-test-result-action
+#    - name: Publish test results
+#      uses: EnricoMi/publish-unit-test-result-action@v2
+#      if: (!cancelled())
+#      with:
+#        files: "junit.xml"
+#        check_name: "Unit test results"
       # https://github.com/marketplace/actions/codecov
     - name: Send test coverage to codecov.io
       uses: codecov/codecov-action@v2.1.0
