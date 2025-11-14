@@ -30,7 +30,7 @@ final readonly class BankAccountNumberValidator
         // Kontrola formátu.
         if (!preg_match('/^(([0-9]{0,6})-)?([0-9]{2,10})$/', $accountNumber)) {
             throw new InvalidFormatException(
-                'Číslo účtu je ve špatném formátu! Musí být volitelný prefix a číslo oddělené pomlčkou.'
+                'Číslo účtu je ve špatném formátu! Pokud je vč. prefixu, tak musí být oddělený pomlčkou! Např. 11-001111111.'
             );
         }
 
@@ -75,5 +75,7 @@ final readonly class BankAccountNumberValidator
         if (null === $this->bankCodesProvider->getBankName($bankCode)) {
             throw new MissingBankCodeException(sprintf('Banku s kódem "%s" nemáme v evidenci!', $bankCode));
         }
+
+        return true;
     }
 }

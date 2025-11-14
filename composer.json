@@ -13,5 +13,8 @@
             "email": "hurda@ebrana.cz"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=8.4",
+        "symfony/validator": "^7.3 || ^8.0"
+    }
 }
