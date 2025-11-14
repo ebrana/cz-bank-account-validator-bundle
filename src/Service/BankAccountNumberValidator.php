@@ -17,7 +17,7 @@ final readonly class BankAccountNumberValidator
     }
 
     /**
-     * todo create method for 3 parts and solo part
+     * todo create method for 3 parts and solo part.
      */
     public function validate(string $accountNumber, string $bankCode): bool
     {
@@ -48,11 +48,11 @@ final readonly class BankAccountNumberValidator
             // Suma všech čísel pronásobených jejich váhami
             $sum = 0;
             for ($i = 0; $i < 6; $i++) {
-                $sum += (int)$prefixParts[$i] * $prefixWeights[$i];
+                $sum += (int) $prefixParts[$i] * $prefixWeights[$i];
             }
 
             // Kontrola na dělitelnost 11
-            if ($sum % 11 !== 0) {
+            if (0 !== $sum % 11) {
                 throw new InvalidAccountNumberChecksumException('Číslo účtu není validní!');
             }
         }
@@ -63,11 +63,11 @@ final readonly class BankAccountNumberValidator
         // Suma všech číslic pronásobených jejich vahami
         $sum = 0;
         for ($i = 0; $i < 10; $i++) {
-            $sum += (int)($base[$i]) * $baseWeights[$i];
+            $sum += (int) $base[$i] * $baseWeights[$i];
         }
 
         // Kontrola na dělitelnost 11
-        if ($sum % 11 !== 0) {
+        if (0 !== $sum % 11) {
             throw new InvalidAccountNumberChecksumException('Číslo účtu není validní!');
         }
 

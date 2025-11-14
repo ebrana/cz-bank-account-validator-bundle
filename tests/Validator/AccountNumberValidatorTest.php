@@ -7,11 +7,9 @@ namespace Ebrana\CzBankAccountValidatorBundle\Tests\Validator;
 use Ebrana\CzBankAccountValidatorBundle\Model\AccountNumberInterface;
 use Ebrana\CzBankAccountValidatorBundle\Provider\BankCodesProvider;
 use Ebrana\CzBankAccountValidatorBundle\Service\BankAccountNumberValidator;
-use Ebrana\CzBankAccountValidatorBundle\Validator\AccountNumberValidator;
 use Ebrana\CzBankAccountValidatorBundle\Validator\AccountNumberValid;
-use InvalidArgumentException;
+use Ebrana\CzBankAccountValidatorBundle\Validator\AccountNumberValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use stdClass;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
@@ -34,9 +32,8 @@ class AccountNumberValidatorTest extends ConstraintValidatorTestCase
      */
     public function testConstraintWithoutInterface(): void
     {
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->validator->validate(new stdClass(), new AccountNumberValid());
+        $this->expectException(\InvalidArgumentException::class);
+        $this->validator->validate(new \stdClass(), new AccountNumberValid());
     }
 
     /**

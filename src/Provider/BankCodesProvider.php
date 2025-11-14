@@ -14,7 +14,7 @@ final readonly class BankCodesProvider
     }
 
     /**
-     * update bank codes from https://www.cnb.cz/cs/platebni-styk/ucty-kody-bank/
+     * update bank codes from https://www.cnb.cz/cs/platebni-styk/ucty-kody-bank/.
      *
      * @return array<int|string, string>
      */

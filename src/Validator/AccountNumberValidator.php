@@ -9,7 +9,6 @@ use Ebrana\CzBankAccountValidatorBundle\Exception\Validator\BankAccountNumber\In
 use Ebrana\CzBankAccountValidatorBundle\Exception\Validator\BankAccountNumber\MissingBankCodeException;
 use Ebrana\CzBankAccountValidatorBundle\Model\AccountNumberInterface;
 use Ebrana\CzBankAccountValidatorBundle\Service\BankAccountNumberValidator;
-use InvalidArgumentException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -24,7 +23,7 @@ final class AccountNumberValidator extends ConstraintValidator
     {
         assert($constraint instanceof AccountNumberValid);
         if (!$value instanceof AccountNumberInterface) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Constraint "%s" must be applied over instance of "%s"!',
                     AccountNumberValid::class,
@@ -59,7 +58,7 @@ final class AccountNumberValidator extends ConstraintValidator
 
         try {
             $this->validator->validate($value->getAccountNumber(), $value->getBankCode());
-        } catch (InvalidFormatException | InvalidAccountNumberChecksumException $e) {
+        } catch (InvalidFormatException|InvalidAccountNumberChecksumException $e) {
             $message = $e instanceof InvalidFormatException
                 ? $constraint->invalidFormatMessage
                 : $constraint->invalidChecksumMessage
