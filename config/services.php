@@ -16,6 +16,7 @@ return static function (ContainerConfigurator $container) {
             ->args([
                 service('ebrana.bank_codes_provider'),
             ])
+            ->tag('validator.constraint_validator')
         ->alias(BankAccountNumberValidator::class, 'ebrana.cz_bank_validator')
     ;
 };
