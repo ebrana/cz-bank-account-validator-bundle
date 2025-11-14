@@ -12,6 +12,8 @@ on:
     branches: [ "main" ]
 
 permissions:
+  checks: write
+  pull-requests: write
   contents: read
 
 jobs:
@@ -37,14 +39,14 @@ jobs:
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
     - name: Execute tests (Unit and Feature tests) via PHPUnit
-      run: vendor/bin/phpunit --testsuite unit --log-junit junit.xml --coverage-clover clover.xml
-#    # https://github.com/EnricoMi/publish-unit-test-result-action
-#    - name: Publish test results
-#      uses: EnricoMi/publish-unit-test-result-action@v2
-#      if: (!cancelled())
-#      with:
-#        files: "junit.xml"
-#        check_name: "Unit test results"
+      run: vendor/bin/phpunit -c phpunit.dist.xml --log-junit junit.xml --coverage-clover clover.xml
+    # https://github.com/EnricoMi/publish-unit-test-result-action
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: (!cancelled())
+      with:
+        files: "junit.xml"
+        check_name: "Unit test results"
       # https://github.com/marketplace/actions/codecov
     - name: Send test coverage to codecov.io
       uses: codecov/codecov-action@v2.1.0
@@ -52,10 +54,10 @@ jobs:
         files: clover.xml
 #        fail_ci_if_error: true # optional (default = false)
 #        verbose: true # optional (default = false)
-#    - name: Check minimum required test coverage
-#      run: |
-#        CODE_COVERAGE=$(vendor/bin/coverage-checker clover.xml 90 --processor=clover-coverage)
-#        echo ${CODE_COVERAGE}
-#        if [[ ${CODE_COVERAGE} == *"test coverage, got"* ]] ; then
-#          exit 1;
-#        fi
+    - name: Check minimum required test coverage
+      run: |
+        CODE_COVERAGE=$(vendor/bin/coverage-checker clover.xml 95 --processor=clover-coverage)
+        echo ${CODE_COVERAGE}
+        if [[ ${CODE_COVERAGE} == *"test coverage, got"* ]] ; then
+          exit 1;
+        fi

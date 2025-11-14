@@ -27,6 +27,7 @@
         "phpunit/phpunit": "^12.4",
         "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.89",
-        "symfony/http-kernel": "^7.3 || ^8.0"
+        "symfony/http-kernel": "^7.3 || ^8.0",
+        "robiningelbrecht/phpunit-coverage-check": "dev-master"
     }
 }
