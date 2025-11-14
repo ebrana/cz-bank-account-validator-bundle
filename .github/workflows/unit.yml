@@ -1,0 +1,63 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: unit
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    steps:
+    #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+    # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+    # uses: shivammathur/setup-php@v2
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        coverage: xdebug
+    - uses: actions/checkout@v4
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      run: vendor/bin/phpunit -c phpunit.dist.xml --log-junit junit.xml --coverage-clover clover.xml
+    # https://github.com/EnricoMi/publish-unit-test-result-action
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: (!cancelled())
+      with:
+        files: "junit.xml"
+        check_name: "Unit test results"
+      # https://github.com/marketplace/actions/codecov
+    - name: Send test coverage to codecov.io
+      uses: codecov/codecov-action@v2.1.0
+      with:
+        files: clover.xml
+#        fail_ci_if_error: true # optional (default = false)
+#        verbose: true # optional (default = false)
+    - name: Check minimum required test coverage
+      run: |
+        CODE_COVERAGE=$(vendor/bin/coverage-checker clover.xml 95 --processor=clover-coverage)
+        echo ${CODE_COVERAGE}
+        if [[ ${CODE_COVERAGE} == *"test coverage, got"* ]] ; then
+          exit 1;
+        fi
