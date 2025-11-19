@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ebrana\CzBankAccountValidatorBundle\Tests\Validator;
 
-use Ebrana\CzBankAccountValidatorBundle\Model\AccountNumberInterface;
 use Ebrana\CzBankAccountValidatorBundle\Provider\BankCodesProvider;
 use Ebrana\CzBankAccountValidatorBundle\Service\BankAccountNumberValidator;
 use Ebrana\CzBankAccountValidatorBundle\Validator\AccountNumberValid;
@@ -23,111 +22,72 @@ class AccountNumberValidatorTest extends ConstraintValidatorTestCase
      */
     public function testEmptyAccountNumberIsValid(): void
     {
-        $this->validator->validate(new EntityWithAccountNumberStub(), new AccountNumberValid());
+        $this->validator->validate(null, new AccountNumberValid());
         $this->assertNoViolation();
-    }
-
-    /**
-     * @debug make test1 f=testConstraintWithoutInterface
-     */
-    public function testConstraintWithoutInterface(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->validator->validate(new \stdClass(), new AccountNumberValid());
     }
 
     /**
      * @debug make test1 f=testAccountNumberViolation
      */
     #[DataProvider('provideInvalidDataViolatingAccount')]
-    public function testAccountNumberViolation(string $expectedMessage, ?string $accountNumber, ?string $bankCode): void
-    {
-        $company = new EntityWithAccountNumberStub();
-        $company->accountNumber = $accountNumber;
-        $company->bankCode = $bankCode;
+    public function testAccountNumberViolation(
+        string $expectedMessage,
+        string $accountNumber,
+        string $expectedPath = 'accountNumber',
+    ): void {
+        $constraint = new AccountNumberValid(prefixPath: 'prefixPath');
+        $this->validator->validate($accountNumber, $constraint);
 
-        $this->validator->validate($company, new AccountNumberValid());
-
-        $this->buildViolation($expectedMessage)->atPath('property.path.accountNumber')->assertRaised();
+        $this->buildViolation($expectedMessage)
+            ->atPath(sprintf('property.path.%s', $expectedPath))
+            ->assertRaised()
+        ;
     }
 
     /**
      * @debug make test1 f=testBankCodeViolation
      */
     #[DataProvider('provideInvalidDataViolatingBankCode')]
-    public function testBankCodeViolation(string $expectedMessage, ?string $accountNumber, ?string $bankCode): void
+    public function testBankCodeViolation(string $expectedMessage, string $accountNumber): void
     {
-        $company = new EntityWithAccountNumberStub();
-        $company->accountNumber = $accountNumber;
-        $company->bankCode = $bankCode;
-
-        $this->validator->validate($company, new AccountNumberValid());
+        $this->validator->validate($accountNumber, new AccountNumberValid(bankCodePath: 'bankCode'));
 
         $this->buildViolation($expectedMessage)->atPath('property.path.bankCode')->assertRaised();
     }
 
     /**
-     * @return iterable<string, array<string, ?string>>
+     * @return iterable<string, array<string, string>>
      */
     public static function provideInvalidDataViolatingBankCode(): iterable
     {
-        yield 'filledAccountMissingCode' => [
-            'expectedMessage' => 'Vyberte kód banky!',
-            'accountNumber' => '3355550267',
-            'bankCode' => null,
-        ];
         yield 'codeDoesNotExist' => [
             'expectedMessage' => 'Banku s kódem "1234" nemáme v evidenci!',
-            'accountNumber' => '3355550267',
-            'bankCode' => '1234',
+            'accountNumber' => '3355550267/1234',
         ];
     }
 
     /**
-     * @return iterable<string, array<string, ?string>>
+     * @return iterable<string, array<string, string>>
      */
     public static function provideInvalidDataViolatingAccount(): iterable
     {
-        yield 'filledCodeMissingAccount' => [
-            'expectedMessage' => 'Vyplňte číslo účtu!',
-            'accountNumber' => null,
-            'bankCode' => '3030',
-        ];
         yield 'invalidFormat' => [
-            'expectedMessage' => 'Číslo účtu je ve špatném formátu! Pokud je vč. prefixu, tak musí být oddělený pomlčkou! Např. 11-001111111.',
-            'accountNumber' => '1a2-x78',
-            'bankCode' => '3030',
+            'expectedMessage' => 'Číslo účtu je ve špatném formátu! Pokud je vč. prefixu, tak musí být oddělený pomlčkou a bez mezer! Např. 11-001111111/0300.',
+            'accountNumber' => '1a2-x78/3030',
         ];
         yield 'wrongPrefixChecksum' => [
-            'expectedMessage' => 'Číslo účtu není validní!',
-            'accountNumber' => '375-3355550267',
-            'bankCode' => '3030',
+            'expectedMessage' => 'Číslo účtu nemá validní prefix!',
+            'accountNumber' => '375-3355550267/3030',
+            'expectedPath' => 'prefixPath',
         ];
         yield 'wrongBaseChecksum' => [
             'expectedMessage' => 'Číslo účtu není validní!',
-            'accountNumber' => '3355550268',
-            'bankCode' => '3030',
+            'accountNumber' => '3355550268/3030',
         ];
     }
 
     protected function createValidator(): ConstraintValidatorInterface
     {
         return new AccountNumberValidator(new BankAccountNumberValidator(new BankCodesProvider()));
-    }
-}
-
-final class EntityWithAccountNumberStub implements AccountNumberInterface
-{
-    public ?string $accountNumber = null;
-    public ?string $bankCode = null;
-
-    public function getAccountNumber(): ?string
-    {
-        return $this->accountNumber;
-    }
-
-    public function getBankCode(): ?string
-    {
-        return $this->bankCode;
     }
 }
