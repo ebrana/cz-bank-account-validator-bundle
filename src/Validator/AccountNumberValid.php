@@ -6,16 +6,16 @@ namespace Ebrana\CzBankAccountValidatorBundle\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
-#[\Attribute(\Attribute::TARGET_CLASS)]
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final class AccountNumberValid extends Constraint
 {
     public function __construct(
         public string $numberPath = 'accountNumber',
-        public string $bankCodePath = 'bankCode',
-        public string $missingNumberMessage = 'Vyplňte číslo účtu!',
-        public string $missingBankCodeMessage = 'Vyberte kód banky!',
+        public string $bankCodePath = 'accountNumber',
+        public string $prefixPath = 'accountNumber',
         public ?string $invalidFormatMessage = null,
         public ?string $invalidChecksumMessage = null,
+        public ?string $invalidPrefixChecksumMessage = null,
         public ?string $nonExistingBankCodeMessage = null,
         mixed $options = null,
         ?array $groups = null,
@@ -29,8 +29,11 @@ final class AccountNumberValid extends Constraint
         return AccountNumberValidator::class;
     }
 
-    public function getTargets(): string
+    /**
+     * @return string[]
+     */
+    public function getTargets(): array
     {
-        return self::CLASS_CONSTRAINT;
+        return [self::CLASS_CONSTRAINT, self::PROPERTY_CONSTRAINT];
     }
 }
