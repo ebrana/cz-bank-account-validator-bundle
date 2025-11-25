@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ebrana\CzBankAccountValidatorBundle\Tests\Unit\Service\Validator;
 
 use Ebrana\CzBankAccountValidatorBundle\Exception\Validator\BankAccountNumber\InvalidAccountNumberChecksumException;
+use Ebrana\CzBankAccountValidatorBundle\Exception\Validator\BankAccountNumber\InvalidAccountPrefixChecksumException;
 use Ebrana\CzBankAccountValidatorBundle\Exception\Validator\BankAccountNumber\InvalidFormatException;
 use Ebrana\CzBankAccountValidatorBundle\Exception\Validator\BankAccountNumber\MissingBankCodeException;
 use Ebrana\CzBankAccountValidatorBundle\Provider\BankCodesProvider;
@@ -25,40 +26,50 @@ final class BankAccountNumberValidatorTest extends TestCase
      * @debug make test1 f=testValidAccount
      */
     #[DataProvider('provideValidBankAccounts')]
-    public function testValidAccount(string $account, string $bank): void
+    public function testValidAccount(string $number): void
     {
         $this->expectNotToPerformAssertions();
-        $this->validator->validate($account, $bank);
+        $this->validator->validate($number);
     }
 
     /**
      * @debug make test1 f=testInvalidAccountFormat
      */
     #[DataProvider('provideInvalidFormats')]
-    public function testInvalidAccountFormat(string $account): void
+    public function testInvalidAccountFormat(string $number): void
     {
         $this->expectException(InvalidFormatException::class);
-        $this->validator->validate($account, 'Does not matter here');
+        $this->validator->validate($number);
     }
 
     /**
-     * @debug make test1 f=testInvalidChecksum
+     * @debug make test1 f=testInvalidNumberChecksum
      */
     #[DataProvider('provideInvalidChecksumData')]
-    public function testInvalidChecksum(string $account): void
+    public function testInvalidNumberChecksum(string $account): void
     {
         $this->expectException(InvalidAccountNumberChecksumException::class);
-        $this->validator->validate($account, 'Does not matter here');
+        $this->validator->validate($account);
+    }
+
+    /**
+     * @debug make test1 f=testInvalidPrefixChecksum
+     */
+    #[DataProvider('provideInvalidPrefixChecksumData')]
+    public function testInvalidPrefixChecksum(string $account): void
+    {
+        $this->expectException(InvalidAccountPrefixChecksumException::class);
+        $this->validator->validate($account);
     }
 
     /**
      * @debug make test1 f=testInvalidBankCode
      */
     #[DataProvider('provideInvalidBankCodes')]
-    public function testInvalidBankCode(string $bankCode): void
+    public function testInvalidBankCode(string $number): void
     {
         $this->expectException(MissingBankCodeException::class);
-        $this->validator->validate('188505042', $bankCode);
+        $this->validator->validate($number);
     }
 
     /**
@@ -67,22 +78,10 @@ final class BankAccountNumberValidatorTest extends TestCase
     public static function provideValidBankAccounts(): array
     {
         return [
-            [
-                'account' => '2171532',
-                'bank' => '0800',
-            ],
-            [
-                'account' => '1265098001',
-                'bank' => '5500',
-            ],
-            [
-                'account' => '188505042',
-                'bank' => '0300',
-            ],
-            [
-                'account' => '35-3355550267',
-                'bank' => '0100',
-            ],
+            ['number' => '2171532/0800'],
+            ['number' => '1265098001/5500'],
+            ['number' => '188505042/0300'],
+            ['number' => '35-3355550267/0100'],
         ];
     }
 
@@ -91,13 +90,16 @@ final class BankAccountNumberValidatorTest extends TestCase
      */
     public static function provideInvalidFormats(): iterable
     {
-        yield 'longPrefix' => ['account' => '7896542-122'];
-        yield 'longNumber' => ['account' => '12345678910'];
-        yield 'charInPrefix' => ['account' => '12a-123645'];
-        yield 'charInNumber' => ['account' => '1123a56'];
-        yield 'withBankCode' => ['account' => '188505042/0300'];
-        yield 'withDoublePrefix' => ['account' => '123-12-1234'];
-        yield 'withPrefixAndBankCode' => ['account' => '35-3355550267/0100'];
+        yield 'longPrefix' => ['number' => '7896542-122/0300'];
+        yield 'longNumber' => ['number' => '12345678910/0300'];
+        yield 'charInPrefix' => ['number' => '12a-123645/0300'];
+        yield 'charInNumber' => ['number' => '1123a56/0300'];
+        yield 'withDoubleBankCode' => ['number' => '188505042/0300/0300'];
+        yield 'withDoublePrefix' => ['number' => '123-12-1234/0300'];
+        yield 'withPrefixAndDoubleBankCode' => ['number' => '35-3355550267/0100/0300'];
+        yield 'shortBankCode' => ['number' => '188505042/300'];
+        yield 'longBankCode' => ['number' => '188505042/03030'];
+        yield 'badBankCode' => ['number' => '188505042/x-12'];
     }
 
     /**
@@ -105,9 +107,16 @@ final class BankAccountNumberValidatorTest extends TestCase
      */
     public static function provideInvalidChecksumData(): iterable
     {
-        yield 'badPrefix' => ['account' => '335-3355550267'];
-        yield 'badBase' => ['account' => '35-3355550257'];
-        yield 'badBoth' => ['account' => '735-3355550268'];
+        yield 'badBase' => ['account' => '35-3355550257/0300'];
+    }
+
+    /**
+     * @return iterable<string, array<string, string>>
+     */
+    public static function provideInvalidPrefixChecksumData(): iterable
+    {
+        yield 'badPrefix' => ['account' => '335-3355550267/0300'];
+        yield 'badBoth' => ['account' => '735-3355550268/0300'];
     }
 
     /**
@@ -115,9 +124,6 @@ final class BankAccountNumberValidatorTest extends TestCase
      */
     public static function provideInvalidBankCodes(): iterable
     {
-        yield 'nonExistingBank' => ['bankCode' => '3333'];
-        yield 'shortFormat' => ['bankCode' => '300'];
-        yield 'longFormat' => ['bankCode' => '03030'];
-        yield 'badFormat' => ['bankCode' => 'x-12'];
+        yield 'nonExistingBank' => ['number' => '188505042/3333'];
     }
 }
