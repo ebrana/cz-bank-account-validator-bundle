@@ -6,10 +6,8 @@
 name: unit
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "release/*" ]
 
 permissions:
   checks: write
