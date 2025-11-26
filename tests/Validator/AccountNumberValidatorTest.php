@@ -35,7 +35,11 @@ class AccountNumberValidatorTest extends ConstraintValidatorTestCase
         string $accountNumber,
         string $expectedPath = 'accountNumber',
     ): void {
-        $constraint = new AccountNumberValid(prefixPath: 'prefixPath');
+        $constraint = new AccountNumberValid(
+            numberPath: 'accountNumber',
+            bankCodePath: 'bankCode',
+            prefixPath: 'prefixPath',
+        );
         $this->validator->validate($accountNumber, $constraint);
 
         $this->buildViolation($expectedMessage)

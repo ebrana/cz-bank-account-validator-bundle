@@ -10,9 +10,9 @@ use Symfony\Component\Validator\Constraint;
 final class AccountNumberValid extends Constraint
 {
     public function __construct(
-        public string $numberPath = 'accountNumber',
-        public string $bankCodePath = 'accountNumber',
-        public string $prefixPath = 'accountNumber',
+        public string $numberPath = '',
+        public string $bankCodePath = '',
+        public string $prefixPath = '',
         public ?string $invalidFormatMessage = null,
         public ?string $invalidChecksumMessage = null,
         public ?string $invalidPrefixChecksumMessage = null,
